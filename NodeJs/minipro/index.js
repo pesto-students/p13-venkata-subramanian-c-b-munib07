@@ -1,5 +1,5 @@
 'use strict'
-
+require("dotenv").config();
 const express = require ('express');
 const app = express();
 const morgan = require('morgan');
@@ -9,10 +9,8 @@ const database = require('./db/database');
 const services = require('./services/jobs');
 const Job = require('./db/models/job');
 
-const port = process.env.PORT || 5000;
-const env = process.env.NODE_ENV || 'development';
-app.locals.ENV = env;
-app.locals.ENV_DEVELOPMENT = env == 'development';
+const port = process.env.NODE_PORT || 5000;
+
 
 // Remove x-powered-by header (doesn't let clients know we are using Express)
 app.disable('x-powered-by');
@@ -26,7 +24,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 app.get('/api/remotejobs', (req, res) => {
-  Job.find({})
+  let obj = {};
+  if (req.query.company){
+    obj = {'company': req.query.company}
+  }
+  Job.find(obj)
     .then((jobs) => {
       console.log('Served /api/remotejobs call');
       console.log(`Fetched ${jobs.length} jobs from the MongoDB.`);
@@ -82,9 +84,13 @@ try {
   console.error('There has been an error with the MongoDB server.');
 }
 
+services.getJobs().then(() => { // Fetches data from the remoteok.io/api
+  console.log('Fetched Data from remoteOK. Please call the /api/remotejobs to view records');
+});
+/*
 services.getJobs().then(() => {     // Fetches data from the remoteok.io/api
-  services.getJob({company: 'Ascendle'}).then(res => {  // Fetches data from the MongoDB database
+  services.getJob({company: 'Chime'}).then(res => {  // Fetches data from the MongoDB database
     console.log('From MongoDB:', res);
   });
 });
-
+*/

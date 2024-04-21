@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 
 const apiFetch = require('./apiFetch');
+const remoteOk = require('./remoteok')
 const Job = require('../db/models/job');
 
 const setNewJob = (job) => {
@@ -27,21 +28,27 @@ const setNewJob = (job) => {
 
 const getJobs = async () => {
   try {
-    let res = await apiFetch.get();
-    res.data.forEach(element => {
+    //let res = await apiFetch.get();
+    console.log('In getJobs')
+    const RO = new remoteOk();
+    let res =  await RO.getData()
+    //console.log(JSON.stringify(res.data));
+    res.forEach(element => {
+      console.log(element)
       if (!element.legal) {
         let newJob = setNewJob(element);
         newJob.save((err, newJob) => {
           if (err) {
             if (!err.code === 11000) return console.error(err); // Disable duplicate key error.
           }
-          // newJob.savedStatus();     // Uncomment if you want to see a status from each record saved.
+          //newJob.savedStatus();     // Uncomment if you want to see a status from each record saved.
         });
       }
-    });
-    console.log(`Fetched ${res.data.length - 1} jobs from the API.`);
+    })
+    console.log(`Fetched ${res.length - 1} jobs from the API.`);
   } catch(e) {
-    console.error('Nothing fetched from the API.'); // Could not performed the API request so nothing to show.
+    console.error('Nothing fetched from the API. '+e); // Could not performed the API request so nothing to show.
+    return false;
   }
 }
 

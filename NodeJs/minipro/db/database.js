@@ -1,8 +1,9 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const config = require('./../db/config.json');
+//const config = require('./../db/config.json');
 
+/*
 var cn = {
     host: config.development.mongo.host,
     port: config.development.mongo.port,
@@ -12,14 +13,25 @@ var cn = {
     client_encoding: config.development.encoding,
     application_name: config.appName
 };
+*/
 
-mongoose.connect(`mongodb://${cn.host}/${cn.database}`, {useNewUrlParser: true, useCreateIndex: true });
+const {
+  DB_USER,
+  DB_PASSWORD,
+  DB_HOST,
+  DB_PORT,
+  DB_NAME,
+} = process.env;
+
+const url = `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin`
+
+mongoose.connect(url, {useNewUrlParser: true, useCreateIndex: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   // we're connected!
-  console.log(`✔ MongoDB Server listening on: http://${cn.host}:${cn.port}`);
+  console.log(`✔ MongoDB Server listening on: http://${DB_HOST}:${DB_PORT}`);
 });
 
 module.exports = {
