@@ -29,15 +29,15 @@ const getTaskById = (req, res) => {
 
 const updateTask = (req, res) => {
   const id = parseInt(req.params.id);
-  const { title, description, completed } = req.body;
+  const { completed } = req.body;
   const taskIndex = tasks.findIndex(task => task.id === id);
   if (taskIndex === -1) {
     res.status(404).json({ error: 'Task not found' });
   } else {
     tasks[taskIndex] = {
       id,
-      title: title || tasks[taskIndex].title,
-      description: description || tasks[taskIndex].description,
+      title: tasks[taskIndex].title,
+      description: tasks[taskIndex].description,
       completed: completed || tasks[taskIndex].completed
     };
     res.json(tasks[taskIndex]);
